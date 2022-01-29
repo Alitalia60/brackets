@@ -1,126 +1,38 @@
-// module.exports = function check(str, bracketsConfig) {
-function check(str, bracketsConfig) {
-  // your solution
+module.exports = function check(str, bracketsConfig) {
   let stack = [];
-  let open = false;
-  let bracketCounter = {};
-
-  console.log("str=", str);
-  console.log("config=", bracketsConfig);
-  bracketsConfig.forEach((config) => {
-    bracketCounter[config[0]] = 0;
-  });
-
-  // console.log("bracketCounter=", bracketCounter);
 
   for (let index = 0; index < str.length; index++) {
-    // console.log("===", str[index]);
-
-    let checkingSymbol = str[index];
-
-    if (kindOfOpening(checkingSymbol, bracketsConfig) >= 0) {
-      console.log("   + plus");
-      bracketCounter[checkingSymbol]++;
+    let symbol = str[index];
+    if (isOpening(symbol, bracketsConfig, stack)) {
+      stack.push(symbol);
     } else {
-      // not opening brackets
-      console.log("   - minus");
-      let openingSymbol = getByClosing(checkingSymbol, bracketsConfig);
-      bracketCounter[openingSymbol]--;
-      if (bracketCounter[openingSymbol] < 0) {
-        console.log("error <0");
+      if (symbol != getClosing(stack.pop(), bracketsConfig)) {
         return false;
-      }
-    }
-    
-    // if (bracketCounter[checkingSymbol] < 0) {
-      //   console.log("error <0");
-      //   return false;
-      // } else if (
-        //   isTheSameBracket(checkingSymbol, bracketsConfig) &&
-        //   Math.floor(bracketCounter[checkingSymbol] / 2) !=
-        //     bracketCounter[checkingSymbol] / 2
-        // ) {
-          //   console.log("error /= 2");
-          //   return false;
-          // }
-        }
-        for (const key in bracketCounter) {
-          if (isTheSameBracket(key, bracketsConfig)) {
-            if (Math.floor(bracketCounter[key] / 2) !=  bracketCounter[key] / 2) {
-        console.log("error not odd");
-        return false
+        break;
       }
     }
   }
-  console.log("OK");
-  return true;
-}
+  return stack.length == 0 ? true : false;
+};
 
-function kindOfOpening(symbolOfQueue, bracketsConfig) {
-  for (let i = 0; i < bracketsConfig.length; i++) {
-    const element = bracketsConfig[i];
-    if (symbolOfQueue == element[0]) {
-      if (element[0] == element[1]) {
-        return 0;
-      } else {
-        return 1;
-      }
-    } else {
-      return -1;
-    }
-  }
-}
-
-function getByClosing(symbolOfQueue, bracketsConfig) {
-  for (let i = 0; i < bracketsConfig.length; i++) {
-    const element = bracketsConfig[i];
-    if (symbolOfQueue == element[1]) {
-      return element[0];
-    }
-  }
-}
-
-function isTheSameBracket(symbolOfQueue, bracketsConfig) {
-  for (let i = 0; i < bracketsConfig.length; i++) {
-    const element = bracketsConfig[i];
-    if (symbolOfQueue == element[1] && symbolOfQueue == element[0]) {
+function isOpening(bracket, arrayOfConfig, stack) {
+  let lastPushing = getClosing(stack[stack.length - 1], arrayOfConfig);
+  if (lastPushing == bracket) return false;
+  for (let i = 0; i < arrayOfConfig.length; i++) {
+    const config = arrayOfConfig[i];
+    if (config[0] == bracket) {
       return true;
     }
   }
+  return false;
 }
 
-const config1 = [["(", ")"]];
-const config2 = [
-  ["(", ")"],
-  ["[", "]"],
-];
-const config3 = [
-  ["(", ")"],
-  ["[", "]"],
-  ["{", "}"],
-];
-const config4 = [["|", "|"]];
-const config5 = [
-  ["(", ")"],
-  ["|", "|"],
-];
-const config6 = [
-  ["1", "2"],
-  ["3", "4"],
-  ["5", "6"],
-  ["7", "7"],
-  ["8", "8"],
-];
-const config7 = [
-  ["(", ")"],
-  ["[", "]"],
-  ["{", "}"],
-  ["|", "|"],
-];
-
-// check("())(", config7);
-// check("())(", config1);
-// check('([{}])', config3)
-// check('[(])', config2)
-// check('||', config4)
-check('|()|', config5)
+function getClosing(bracket, arrayOfConfig) {
+  for (let i = 0; i < arrayOfConfig.length; i++) {
+    const config = arrayOfConfig[i];
+    if (config[0] == bracket) {
+      return config[1];
+    }
+  }
+  return undefined;
+}
